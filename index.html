@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- test commit -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>PathFindingAlgos</title>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li id="Reset">Reset</li>
+            <li id="Algos">
+                <span>Algorithms</span>
+                <div class="options">
+                    <div class="option" id="a*">A*</div>
+                    <div class="option" id="dijkstra">djakster</div>
+                    <div class="option" id="myCustom">My Custom</div>
+                    <div class="option">Algorithms 1</div>
+                    <div class="option">Algorithms 2</div>
+                    <div class="option">Algorithms 3</div>
+                </div>
+            </li>
+            <li id="BtnStart">Start</li>
+            <li id="About">About</li>
+            <li id="Contact">Contact</li>
+        </ul>
+    </nav>
+    <div class="info">
+        <div class="legende">
+            <i style="background-image: url('./icons/start.png');"></i>
+            <span>:Start Point</span>
+            <i style="background-image: url('./icons/end.png');"></i>
+            <span>:End Point </span>
+        </div>
+        <div class="shortest_dist">
+            <span>Distance Traveled :</span>
+            <div class="value">
+                0 blocks
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="grid">
+        </div>
+    </div>
+
+</body>
+<script src="mainScript.js"></script>
+</html>

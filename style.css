@@ -1,0 +1,148 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+body{
+    font-family: consolas;
+    height: 100vh;
+    background-color: lightgreen;
+}
+
+.navbar ul{
+    display: flex;
+    justify-content: center;
+}
+
+.navbar li{
+    list-style: none;
+    padding: 15px 0px;
+    flex: 1;
+    text-align: center;
+    font-size: 1.5rem;
+    color: lightgreen;
+    border: 1px solid lightgreen;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+    background-color: green;
+}
+
+.navbar li:hover{
+    background-color: darkgreen;
+    cursor: pointer;
+}
+
+#Algos{
+    position: relative;
+}
+
+#Algos .options{
+    display: none;
+    position: absolute;
+    width: 100%;
+    background-color: green;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    z-index: 2;
+    margin: 15px 0px;
+}
+
+#Algos:hover .options{
+    display: block;
+}
+#Algos .option{
+    border: 0.5px solid transparent;
+    padding: 5px 0px;
+    margin: 5px 0px;
+}
+#Algos .option:hover{
+    border: 0.5px solid rgba(255,255,255,0.3);
+    background-color: darkgreen;
+}
+
+
+/* info */
+
+.info{
+    margin: 10px 50px;
+    position: relative;
+    display: flex;
+}
+
+.info .legende{
+    position:relative;
+    display: flex;
+    left: 0;
+}
+.info .legende i{
+    background-size: cover;
+    width: 24px;
+    height: 24px;
+    margin: 0px 10px;
+}
+
+.info .shortest_dist{
+    position: absolute;
+    display: flex;
+    gap: 3px;
+    right: 0;
+}
+
+/* 
+for the grid  and empty cells
+*/
+.grid{
+    position: relative;
+    user-select: none;
+    margin: 0px 30px;
+}
+.empty_cell{
+    background-color: white;
+}
+
+.grid .empty_cell:hover{
+    background-color: rgb(190, 190, 190);
+}
+
+
+/* for the active cell */
+.wall_cell{
+    transition: background-color 0.2s;
+    z-index: 1;
+    background-color: brown;
+    animation: anim 0.3s ;
+}
+@keyframes anim {
+    0%{
+        scale: 1;
+    }
+    50%{
+        scale: 1.4;
+    }
+    100%{
+        scale: 1;
+    }
+}
+
+/* for the route cells */
+.route_cell{
+    transition: background-color 0.3s ease-in-out,scale 0.3s ease-in-out;
+    scale: 0.4;
+    background-color: rgb(100,250,100);
+
+}
+
+.next_cell{
+    background-color: rgb(0, 0, 0);
+    scale: 0.8;
+
+}
+/* 
+for the start and end cells
+*/
+.start_cell{
+    background-color: white;
+    scale: 1;
+}
+.end_cell{
+    background-color: white;
+}
