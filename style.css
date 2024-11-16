@@ -12,6 +12,7 @@ body{
 .navbar ul{
     display: flex;
     justify-content: center;
+    user-select: none;
 }
 
 .navbar li{
