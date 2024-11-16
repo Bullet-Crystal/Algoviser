@@ -373,6 +373,17 @@ function handle_inputs(){
     document.getElementById('Reset').onclick = function() {
         location.reload();
     }
+    // Prevent mobile users from copying li tags
+    document.querySelectorAll('li').forEach(item => {
+        item.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+        });
+      
+        item.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+        });
+      });
+      
 }
 
 function main_loop(){
