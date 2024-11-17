@@ -33,26 +33,27 @@ body{
     cursor: pointer;
 }
 
-#Algos{
+#Algos, #Settings{
     position: relative;
 }
 
-#Algos .options{
+#Algos .options,#Settings .params{
     display: none;
     position: absolute;
     width: 100%;
+    text-align: center;
     background-color: green;
     box-shadow: 0 8px 16px rgba(0,0,0,0.3);
     z-index: 2;
     margin: 15px 0px;
 }
 
-#Algos .option{
+#Algos .options div, .params div{
     border: 0.5px solid transparent;
     padding: 5px 0px;
     margin: 5px 0px;
 }
-#Algos .option:hover{
+#Algos .options div:hover, .params div:hover{
     border: 0.5px solid rgba(255,255,255,0.3);
     background-color: darkgreen;
 }

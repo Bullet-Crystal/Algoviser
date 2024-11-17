@@ -1,10 +1,14 @@
 // Global Variablres
 
+const speedelement = document.getElementById('speed');
+const routeselemnt = document.getElementById('routes');
+
 const WinWidth = window.innerWidth;
 const WinHeight = window.innerHeight;
 const BoxSize = WinWidth > 700 ? 30 : 20;
-const Time_step = 100;//time for each frame in (ms)
-const Graph = {};
+let Time_step = speedelement.value;//time for each frame in (ms)
+let routes = routeselemnt.value;
+const Graph ={};
 let selected = '';
 
 
@@ -13,6 +17,19 @@ const grid_height = Math.floor((WinHeight / BoxSize)/1.2);
 
 const grid_div = document.querySelector('.grid');
 let [Rand_start_x,Rand_start_y,Rand_end_x,Rand_end_y] = start_end_cell(); 
+
+speedelement.addEventListener('input',updateSpeed)
+routeselemnt.addEventListener('input',updateRoute);
+
+function updateSpeed(){
+    document.getElementById('speedValue').textContent = speedelement.value;
+    Time_step = speedelement.value;
+}
+
+function updateRoute(){
+    document.getElementById('routeValue').textContent = routeselemnt.value;
+    routes = routeselemnt.value;
+}
 
 function start_end_cell(){
     let Rand_start_x = Math.floor(Math.random()*(grid_width - 2)) + 1;
@@ -27,41 +44,41 @@ function start_end_cell(){
 
 
 
-function create_grid() {
+function create_grid(){
     const fragment = document.createDocumentFragment();
 
 
-    for (let y = 0; y < grid_height; y++) {
-        for (let x = 0; x < grid_width; x++) {
+    for (let y = 0; y < grid_height; y++){
+        for (let x = 0; x < grid_width; x++){
             let child = document.createElement('div');
             if(x == 0 || x >= grid_width - 1 || y == 0 || y >= grid_height - 1){
                 child.classList.add('wall_cell');
-            }else if(x == Rand_end_x && y == Rand_end_y){
-                Graph[`x = ${x},y = ${y}`] = [
-                    `x = ${x+1},y = ${y}`,
-                    `x = ${x-1},y = ${y}`,
-                    `x = ${x},y = ${y+1}`,
-                    `x = ${x},y = ${y-1}`,
-                    `x = ${x+1},y = ${y+1}`,
-                    `x = ${x-1},y = ${y-1}`,
-                    `x = ${x+1},y = ${y-1}`,
-                    `x = ${x-1},y = ${y+1}`
-                ];
+            }else{
+                if(routes === 4){
+                    Graph[`x = ${x},y = ${y}`] = [
+                        `x = ${x+1},y = ${y}`,
+                        `x = ${x-1},y = ${y}`,
+                        `x = ${x},y = ${y+1}`,
+                        `x = ${x},y = ${y-1}`,
+                    ];
+                }else{
+                    Graph[`x = ${x},y = ${y}`] = [
+                        `x = ${x+1},y = ${y}`,
+                        `x = ${x-1},y = ${y}`,
+                        `x = ${x},y = ${y+1}`,
+                        `x = ${x},y = ${y-1}`,
+                        `x = ${x+1},y = ${y+1}`,
+                        `x = ${x-1},y = ${y-1}`,
+                        `x = ${x+1},y = ${y-1}`,
+                        `x = ${x-1},y = ${y+1}`
+                    ];
+                }
+                if(x == Rand_end_x && y == Rand_end_y){
                 child.classList.add('end_cell');
                 child.style.backgroundImage = "url('./icons/end.png')";
                 child.style.backgroundRepeat = 'no-repeat';
                 child.style.backgroundSize = '100% 100%';
             }else if(x == Rand_start_x && y == Rand_start_y){
-                Graph[`x = ${x},y = ${y}`] = [
-                    `x = ${x+1},y = ${y}`,
-                    `x = ${x-1},y = ${y}`,
-                    `x = ${x},y = ${y+1}`,
-                    `x = ${x},y = ${y-1}`,
-                    `x = ${x+1},y = ${y+1}`,
-                    `x = ${x-1},y = ${y-1}`,
-                    `x = ${x+1},y = ${y-1}`,
-                    `x = ${x-1},y = ${y+1}`
-                ];
                 child.classList.add('start_cell');
                 child.classList.remove('route_cell');
                 child.style.backgroundImage = "url('./icons/start.png')";
@@ -69,18 +86,9 @@ function create_grid() {
                 child.style.backgroundSize = '100% 100%';
             }
             else{
-                Graph[`x = ${x},y = ${y}`] = [
-                    `x = ${x+1},y = ${y}`,
-                    `x = ${x-1},y = ${y}`,
-                    `x = ${x},y = ${y+1}`,
-                    `x = ${x},y = ${y-1}`,
-                    `x = ${x+1},y = ${y+1}`,
-                    `x = ${x-1},y = ${y-1}`,
-                    `x = ${x+1},y = ${y-1}`,
-                    `x = ${x-1},y = ${y+1}`
-                ];
                 child.classList.add('empty_cell');
             }
+        }
             child.id = `x = ${x},y = ${y}`;
             child.style.width = `${BoxSize}px`;
             child.style.height = `${BoxSize}px`;
@@ -123,7 +131,7 @@ function handle_walls(){
         })
     }
     document.addEventListener('mouseover',(event)=>{
-        if(mouse_active && event.target.classList.contains('empty_cell') && !mouse_active_remove) {
+        if(mouse_active && event.target.classList.contains('empty_cell') && !mouse_active_remove){
             event.target.classList.add('wall_cell');
             event.target.classList.remove('empty_cell');
         }else if(mouse_active_remove && event.target.classList.contains('wall_cell')){
@@ -137,34 +145,34 @@ function handle_walls(){
 
 
 function start_algorithm(){
-    function calculate_distance(x, y) {
+    function calculate_distance(x, y){
         return Math.sqrt((x-Rand_end_x)**2 + (y-Rand_end_y)**2);
     }
-    function travel_to_right_move(distances, right_move, collision = 0) {
-        if (collision >= 8) {
+    function travel_to_right_move(distances, right_move, collision = 0){
+        if (collision >= 8){
             alert('No path was found!');
             distance = 0;
             return;
         }
     
         const moves = [
-            { direction: 'Right', deltaX: 1, deltaY: 0, distance: distances.right },
-            { direction: 'Bottom', deltaX: 0, deltaY: 1, distance: distances.bottom },
-            { direction: 'Left', deltaX: -1, deltaY: 0, distance: distances.left },
-            { direction: 'Top', deltaX: 0, deltaY: -1, distance: distances.top },
-            { direction: 'Top-Right', deltaX: 1, deltaY: -1, distance: distances.topright },
-            { direction: 'Bottom-Left', deltaX: -1, deltaY: 1, distance: distances.bottomleft },
-            { direction: 'Top-Left', deltaX: -1, deltaY: -1, distance: distances.topleft },
-            { direction: 'Bottom-Right', deltaX: 1, deltaY: 1, distance: distances.bottomright },
+           { direction: 'Right', deltaX: 1, deltaY: 0, distance: distances.right },
+           { direction: 'Bottom', deltaX: 0, deltaY: 1, distance: distances.bottom },
+           { direction: 'Left', deltaX: -1, deltaY: 0, distance: distances.left },
+           { direction: 'Top', deltaX: 0, deltaY: -1, distance: distances.top },
+           { direction: 'Top-Right', deltaX: 1, deltaY: -1, distance: distances.topright },
+           { direction: 'Bottom-Left', deltaX: -1, deltaY: 1, distance: distances.bottomleft },
+           { direction: 'Top-Left', deltaX: -1, deltaY: -1, distance: distances.topleft },
+           { direction: 'Bottom-Right', deltaX: 1, deltaY: 1, distance: distances.bottomright },
         ];
     
-        for (let move of moves) {
-            if (move.distance === right_move[collision]) {
+        for (let move of moves){
+            if (move.distance === right_move[collision]){
                 let newX = head_grid_x + move.deltaX;
                 let newY = head_grid_y + move.deltaY;
                 let temp = document.getElementById(`x = ${newX},y = ${newY}`);
     
-                if (temp && (temp.classList.contains('wall_cell') || temp.classList.contains('route_cell'))) {
+                if (temp && (temp.classList.contains('wall_cell') || temp.classList.contains('route_cell'))){
                     collision++;
                     continue;
                 }
@@ -179,10 +187,10 @@ function start_algorithm(){
         travel_to_right_move(distances, right_move, collision);
     }
     
-    function handle_routes() {
+    function handle_routes(){
         // Movement logic
         let collision = 0; // initialized for smallest distance
-        let distances = {
+        let distances ={
             right: calculate_distance(head_grid_x + 1, head_grid_y),
             topright : calculate_distance(head_grid_x + 1, head_grid_y - 1),
             bottom: calculate_distance(head_grid_x, head_grid_y + 1),
@@ -209,7 +217,7 @@ function start_algorithm(){
         // Update blocks traveled
         distance_traveled++;
 
-        if (!next_cell.classList.contains('wall_cell')) {
+        if (!next_cell.classList.contains('wall_cell')){
             const audio = new Audio('sounds/pop.mp3');
             audio.play();
             prev_cell.classList.add('route_cell');
@@ -218,7 +226,7 @@ function start_algorithm(){
             next_cell.classList.remove('empty_cell');
         }
         
-        if (distance > 1) {
+        if (distance > 1){
             setTimeout(handle_routes, Time_step);
         }
         else{
@@ -234,95 +242,94 @@ function start_algorithm(){
     handle_routes();
 }
 
-function dijkstra() {
-    function getCoords(node) {
+function dijkstra(){
+    function getCoords(node){
         const parts = node.split(',');
         const x = parseInt(parts[0].split('=')[1].trim());
         const y = parseInt(parts[1].split('=')[1].trim());
         return [x, y];
     }
 
-    function getDistance(node, neighbor) {
+    function getDistance(node, neighbor){
         const [x_node, y_node] = getCoords(node);
         const [x_neighbor, y_neighbor] = getCoords(neighbor);
         return Math.sqrt((y_neighbor - y_node) ** 2 + (x_neighbor - x_node) ** 2);
     }
 
     function draw_route(previousnode){
-        while(previous[previousnode] != null){
+        if(previous[previousnode] != null){
             document.getElementById(previousnode).classList.add('next_cell');
             previousnode = previous[previousnode]
+            setTimeout(()=>{draw_route(previousnode)},Time_step)
         }
     }
-    let distances = {};
-    let visited = new Set();
-    let nodes = Object.keys(Graph);
 
-    let previous = {};
-
-    // Initialize distances
-    for (let node of nodes) {
-        distances[node] = Infinity;
-        previous[node] = null;
-    }
-    distances[`x = ${Rand_start_x},y = ${Rand_start_y}`] = 0;
-
-    let intervalId = setInterval(()=>{
+    function execute_dj(){
         nodes.sort((a, b) => distances[a] - distances[b]);
-        
         let closestNode = nodes.shift();
-        
-        
         visited.add(closestNode);
 
         if(!Graph[closestNode] || distances[closestNode] === Infinity){
-            clearInterval(intervalId);
             alert("no path was found :(")
+            return;
         }
-        
-        
-        for (let neighbor of Graph[closestNode]) {
-            if (!visited.has(neighbor)) {
+        let i = 0;
+        for (let neighbor of Graph[closestNode]){
+            if(i >= routes)
+                break;
+            i += 1;
+            if (!visited.has(neighbor)){
                 if(document.getElementById(neighbor).classList.contains('wall_cell'))
                     continue;
                 let newDistance = distances[closestNode] + getDistance(closestNode,neighbor);
                 
-                
-                if (newDistance < distances[neighbor]) {
+                if (newDistance < distances[neighbor]){
                     distances[neighbor] = newDistance;
                     document.getElementById(neighbor).classList.add('route_cell');
                     document.getElementById(neighbor).classList.remove('empty_cell');
                     previous[neighbor] = closestNode;
                 }
                 if(neighbor == `x = ${Rand_end_x},y = ${Rand_end_y}`){
-                    clearInterval(intervalId);
+                    document.querySelector('.shortest_dist .value').textContent = `${parseFloat(newDistance).toFixed(2)} blocks`;
                     draw_route(previous[neighbor]);
-                    document.querySelector('.shortest_dist .value').textContent = `${newDistance} blocks`;
+                    return;
                 }
             }
         }
-        
-    },Time_step/20)
 
+        setTimeout(execute_dj,Time_step);
+    }
 
+    let distances ={};
+    let visited = new Set();
+    let nodes = Object.keys(Graph);
+    let previous ={};
+
+    // Initialize distances
+    for (let node of nodes){
+        distances[node] = Infinity;
+        previous[node] = null;
+    }
+    distances[`x = ${Rand_start_x},y = ${Rand_start_y}`] = 0;
+    execute_dj();
 
 }
 
 
 // Function to run selected algorithm
-function run(selected) {
-    if (selected === 'myCustom') {
+function run(selected){
+    if (selected === 'myCustom'){
         start_algorithm();
-    } else if (selected === 'dijkstra') {
+    } else if (selected === 'dijkstra'){
         dijkstra();
-    } else {
+    } else{
         alert("Algorithm not available yet :(");
     }
 };
 
 function setCookie(name, value, days=null){
     let expires = "";
-    if (days) {
+    if (days){
       const date = new Date();
       date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
       expires = "; expires=" + date.toUTCString();
@@ -330,11 +337,11 @@ function setCookie(name, value, days=null){
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
   };
 
-  function getCookie(name) {
+  function getCookie(name){
     const nameEQ = name + "=";
     const cookiesArray = document.cookie.split("; ");
-    for (let cookie of cookiesArray) {
-      if (cookie.indexOf(nameEQ) === 0) {
+    for (let cookie of cookiesArray){
+      if (cookie.indexOf(nameEQ) === 0){
         return cookie.substring(nameEQ.length);
       }
     }
@@ -346,40 +353,44 @@ function handle_inputs(){
     const opts = document.querySelector('.options');
     const algos = document.getElementById('Algos');
     
-    algos.onclick = function (event) {
+    algos.onclick = function (event){
         event.stopPropagation(); // it works d'ont TOUCH it
         opts.style.display = opts.style.display === 'block' ? 'none' : 'block';
     }
     
-    document.addEventListener('click', function () {
+    document.addEventListener('click', function (){
         opts.style.display = 'none';
     });
     
-    for (let option = 0; option < options.length; option++) {
+    for (let option = 0; option < options.length; option++){
         const element = options[option];
         element.onclick = function (){
             selected = element.id;
             setCookie("Algorithm",selected);
         }
     }
-    document.getElementById('BtnStart').onclick = function() {
+    document.getElementById('BtnStart').onclick = function(){
         selected = getCookie("Algorithm") ?? selected;
-        if (selected) {
+        if (selected){
             run(selected);
         }else{
             alert("select an algorithm first !");
         }
       };
-    document.getElementById('Reset').onclick = function() {
+    document.getElementById('Reset').onclick = function(){
         location.reload();
     }
+    document.querySelector('#Settings span').onclick = function(){
+        const paramsElement = document.querySelector('.params');
+        paramsElement.style.display = paramsElement.style.display === 'block' ? 'none' : 'block';        
+    }
     // Prevent mobile users from copying li tags
-    document.querySelectorAll('li').forEach(item => {
-        item.addEventListener('contextmenu', (e) => {
+    document.querySelectorAll('li').forEach(item =>{
+        item.addEventListener('contextmenu', (e) =>{
           e.preventDefault();
         });
       
-        item.addEventListener('touchstart', (e) => {
+        item.addEventListener('touchstart', (e) =>{
           e.preventDefault();
         });
       });

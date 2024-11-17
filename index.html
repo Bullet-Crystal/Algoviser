@@ -14,16 +14,33 @@
             <li id="Algos">
                 <span>Algorithms</span>
                 <div class="options">
-                    <div class="option" id="a*">A*</div>
-                    <div class="option" id="dijkstra">djakster</div>
-                    <div class="option" id="myCustom">My Custom</div>
-                    <div class="option">Algorithms 1</div>
-                    <div class="option">Algorithms 2</div>
-                    <div class="option">Algorithms 3</div>
+                    <div id="a*">A*</div>
+                    <div id="dijkstra">djakster</div>
+                    <div id="myCustom">My Custom</div>
+                    <div>Algorithms 1</div>
+                    <div>Algorithms 2</div>
+                    <div>Algorithms 3</div>
                 </div>
             </li>
             <li id="BtnStart">Start</li>
-            <li id="About">About</li>
+            <li id="Settings">
+                <span style="display: block; width: 100%;">Settings</span>
+                <div class="params">
+                    <div>
+                        <span>Speed :</span>
+                        <input type="range" id="speed" min="0" max="300" value="30" style="text-align: right;">
+                        <span id="speedValue" style="position: absolute;"> 30</span>
+                    </div>
+                    <div>
+                        <span>Routes :</span>
+                        <select id="routes">
+                            <option value="4">4</option>
+                            <option value="8">8</option>
+                        </select>
+                        <span id="routeValue">4</span>
+                    </div>
+                </div>
+            </li>
             <li id="Contact">Contact</li>
         </ul>
     </nav>
