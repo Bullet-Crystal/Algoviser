@@ -6,7 +6,7 @@ const routeselemnt = document.getElementById('routes');
 const WinWidth = window.innerWidth;
 const WinHeight = window.innerHeight;
 const BoxSize = WinWidth > 700 ? 30 : 20;
-let Time_step = speedelement.value;//time for each frame in (ms)
+let Time_step = 100 - speedelement.value;//time for each frame in (ms)
 let routes = routeselemnt.value;
 const Graph ={};
 let selected = '';
@@ -23,7 +23,7 @@ routeselemnt.addEventListener('input',updateRoute);
 
 function updateSpeed(){
     document.getElementById('speedValue').textContent = speedelement.value;
-    Time_step = speedelement.value;
+    Time_step = 100 - speedelement.value;
 }
 
 function updateRoute(){
@@ -281,12 +281,13 @@ function dijkstra(){
             if (!visited.has(neighbor)){
                 if(document.getElementById(neighbor).classList.contains('wall_cell'))
                     continue;
+
                 let newDistance = distances[closestNode] + getDistance(closestNode,neighbor);
+                document.getElementById(neighbor).classList.add('dj_cell');
+                document.getElementById(neighbor).classList.remove('empty_cell');
                 
                 if (newDistance < distances[neighbor]){
                     distances[neighbor] = newDistance;
-                    document.getElementById(neighbor).classList.add('route_cell');
-                    document.getElementById(neighbor).classList.remove('empty_cell');
                     previous[neighbor] = closestNode;
                 }
                 if(neighbor == `x = ${Rand_end_x},y = ${Rand_end_y}`){
@@ -294,6 +295,9 @@ function dijkstra(){
                     draw_route(previous[neighbor]);
                     return;
                 }
+            }else{
+                document.getElementById(neighbor).classList.add('route_cell');
+                document.getElementById(neighbor).classList.remove('dj_cell');
             }
         }
 
@@ -387,10 +391,6 @@ function handle_inputs(){
     // Prevent mobile users from copying li tags
     document.querySelectorAll('li').forEach(item =>{
         item.addEventListener('contextmenu', (e) =>{
-          e.preventDefault();
-        });
-      
-        item.addEventListener('touchstart', (e) =>{
           e.preventDefault();
         });
       });
