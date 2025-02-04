@@ -2,6 +2,8 @@
 
 const speedelement = document.getElementById('speed');
 const routeselemnt = document.getElementById('routes');
+const BtnStart = document.getElementById('BtnStart');
+const ResetBtn = document.getElementById('Reset');
 
 const WinWidth = window.innerWidth;
 const WinHeight = window.innerHeight;
@@ -10,6 +12,7 @@ let Time_step = 100 - speedelement.value;//time for each frame in (ms)
 let routes = routeselemnt.value;
 const Graph ={};
 let selected = '';
+let AlgoIsRunning = false;
 
 
 const grid_width = Math.floor((WinWidth / BoxSize) -2);
@@ -231,6 +234,9 @@ function start_algorithm(){
         }
         else{
             document.querySelector('.shortest_dist .value').textContent = `${distance_traveled} blocks`;
+            AlgoIsRunning = false;
+            StatusOf(BtnStart);
+            StatusOf(ResetBtn);
         }
     }
 
@@ -261,6 +267,10 @@ function dijkstra(){
             document.getElementById(previousnode).classList.add('next_cell');
             previousnode = previous[previousnode]
             setTimeout(()=>{draw_route(previousnode)},Time_step)
+        }else{
+            AlgoIsRunning = false;
+            StatusOf(BtnStart);
+            StatusOf(ResetBtn);
         }
     }
 
@@ -270,6 +280,7 @@ function dijkstra(){
         visited.add(closestNode);
 
         if(!Graph[closestNode] || distances[closestNode] === Infinity){
+            AlgoIsRunning = false;
             alert("no path was found :(")
             return;
         }
@@ -322,13 +333,17 @@ function dijkstra(){
 
 // Function to run selected algorithm
 function run(selected){
+    AlgoIsRunning = true;
     if (selected === 'myCustom'){
         start_algorithm();
     } else if (selected === 'dijkstra'){
         dijkstra();
     } else{
+        AlgoIsRunning = false;
         alert("Algorithm not available yet :(");
     }
+    StatusOf(BtnStart);
+    StatusOf(ResetBtn);
 };
 
 function setCookie(name, value, days=null){
@@ -352,7 +367,18 @@ function setCookie(name, value, days=null){
     return null;
   }
   
+function StatusOf(btn){
+      if(AlgoIsRunning){
+          btn.style.cursor = 'not-allowed';
+          btn.disabled = true;
+      }else{
+          btn.style.cursor = 'pointer';
+          btn.disabled = false;
+      }
+  }
 function handle_inputs(){
+
+
     const options = document.querySelectorAll('.option');
     const opts = document.querySelector('.options');
     const algos = document.getElementById('Algos');
@@ -373,15 +399,25 @@ function handle_inputs(){
             setCookie("Algorithm",selected);
         }
     }
-    document.getElementById('BtnStart').onclick = function(){
+
+    BtnStart.onclick = function(){
         selected = getCookie("Algorithm") ?? selected;
         if (selected){
-            run(selected);
+            if(!AlgoIsRunning){
+                run(selected);
+            }
         }else{
             alert("select an algorithm first !");
         }
       };
-    document.getElementById('Reset').onclick = function(){
+    ResetBtn.onclick = function(){
+        if(!AlgoIsRunning){
+            grid_div.innerHTML = '';
+            main_loop();
+            // main_loop();
+        }
+    }
+    document.getElementById('Wipe All').onclick = function(){
         location.reload();
     }
     document.querySelector('#Settings span').onclick = function(){
