@@ -13,6 +13,7 @@ let routes = routeselemnt.value;
 const Graph ={};
 let selected = '';
 let AlgoIsRunning = false;
+let Reseted = false;
 
 
 const grid_width = Math.floor((WinWidth / BoxSize) -2);
@@ -89,7 +90,15 @@ function create_grid(){
                 child.style.backgroundSize = '100% 100%';
             }
             else{
-                child.classList.add('empty_cell');
+                if(!Reseted){
+                    child.classList.add('empty_cell');
+                }else{
+                    if(!document.getElementById(`x = ${x},y = ${y}`).classList.contains('wall_cell'))
+                        child.classList.add('empty_cell');
+                    else
+                        child.classList.add('wall_cell');
+                    
+                }
             }
         }
             child.id = `x = ${x},y = ${y}`;
@@ -104,7 +113,7 @@ function create_grid(){
         }
     }
 
-    
+    grid_div.innerHTML = '';
     grid_div.appendChild(fragment);
     
 }
@@ -412,8 +421,8 @@ function handle_inputs(){
       };
     ResetBtn.onclick = function(){
         if(!AlgoIsRunning){
-            grid_div.innerHTML = '';
-            main_loop();
+            Reseted = true;
+            create_grid();
             // main_loop();
         }
     }
@@ -422,7 +431,7 @@ function handle_inputs(){
     }
     document.querySelector('#Settings span').onclick = function(){
         const paramsElement = document.querySelector('.params');
-        paramsElement.style.display = paramsElement.style.display === 'block' ? 'none' : 'block';        
+        paramsElement.style.display = paramsElement.style.display === 'block' ? 'none' : 'block';
     }
     // Prevent mobile users from copying li tags
     document.querySelectorAll('li').forEach(item =>{
@@ -439,4 +448,4 @@ function main_loop(){
     handle_inputs();
 }
 
-main_loop()
+main_loop();
