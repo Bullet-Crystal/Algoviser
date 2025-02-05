@@ -38,10 +38,6 @@ body{
     position: relative;
 }
 
-#Settings span {
-    display: block;
-}
-
 #Algos .options,#Settings .params{
     display: none;
     position: absolute;
