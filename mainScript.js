@@ -429,9 +429,13 @@ function handle_inputs(){
     document.getElementById('Wipe All').onclick = function(){
         location.reload();
     }
-    document.querySelector('#Settings span').onclick = function(){
-        const paramsElement = document.querySelector('.params');
-        paramsElement.style.display = paramsElement.style.display === 'block' ? 'none' : 'block';
+    document.querySelector('#Settings').onclick = function(event){
+        if(event.target == this){
+            console.log(event);
+            
+            const paramsElement = document.querySelector('.params');
+            paramsElement.style.display = paramsElement.style.display === 'block' ? 'none' : 'block';
+        }
     }
     // Prevent mobile users from copying li tags
     document.querySelectorAll('li').forEach(item =>{
