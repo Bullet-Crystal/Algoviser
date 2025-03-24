@@ -230,7 +230,7 @@ function start_algorithm(){
         distance_traveled++;
 
         if (!next_cell.classList.contains('wall_cell')){
-            const audio = new Audio('sounds/pop.mp3');
+            const audio = new Audio('sounds/pop.mp3');  
             audio.play();
             prev_cell.classList.add('route_cell');
             prev_cell.classList.remove('next_cell');
@@ -257,6 +257,131 @@ function start_algorithm(){
     handle_routes();
 }
 
+function dfsRecurrsive(){
+    function draw_route(previousnode){
+
+        if(previous[previousnode] != null && previous[previous[previousnode]] != previousnode){
+            document.getElementById(previousnode).classList.add('next_cell');
+            document.getElementById(previousNode).classList.remove('route_cell');
+            previousnode = previous[previousnode]
+            newDistance++;
+            setTimeout(()=>{draw_route(previousnode)},Time_step);
+        }else{
+            AlgoIsRunning = false;
+            document.querySelector('.shortest_dist .value').textContent = `${parseFloat(newDistance).toFixed(2)} blocks`;
+            StatusOf(BtnStart);
+            StatusOf(ResetBtn);
+        }
+    }
+    function execute_dfs(node){
+        
+        let i = 0;
+        if(!Graph[node] || ended){
+            return;
+        }
+        if(document.getElementById(node).classList.contains('wall_cell'))
+            return;
+        
+        if(node == `x = ${Rand_end_x},y = ${Rand_end_y}`){
+            ended = true;
+            draw_route(node);
+            return;
+        }
+        for (let neighbor of Graph[node]){
+
+            if(i >= routes)
+                break;
+            i += 1;
+
+            if (!visited.has(neighbor)){
+                visited.add(neighbor);
+                previous[neighbor] = node;
+                
+                setTimeout(()=>{execute_dfs(neighbor)},Time_step);
+                document.getElementById(node).classList.add('dj_cell');
+                document.getElementById(node).classList.remove('empty_cell');
+                
+            }else{
+                if(document.getElementById(neighbor).classList.contains('wall_cell'))
+                    return;
+                document.getElementById(neighbor).classList.add('route_cell');
+                document.getElementById(neighbor).classList.remove('dj_cell');
+            }
+        }
+    }
+    let ended = false;
+    let newDistance = 0;
+    let previous ={};
+    let visited = new Set();
+    execute_dfs(`x = ${Rand_start_x},y = ${Rand_start_y}`);
+}
+function dfsIterative() {
+    function draw_route(previousNode) {
+        if (previous[previousNode] != null || previous[previous[previousNode]] != previousNode) {
+            document.getElementById(previousNode).classList.add('next_cell');
+            document.getElementById(previousNode).classList.remove('route_cell');
+            document.getElementById(previousNode).classList.remove('dj_cell');
+            previousNode = previous[previousNode];
+            newDistance++;
+            setTimeout(() => draw_route(previousNode), Time_step);
+        } else {
+            AlgoIsRunning = false;
+            document.querySelector('.shortest_dist .value').textContent = `${parseFloat(newDistance).toFixed(2)} blocks`;
+            StatusOf(BtnStart);
+            StatusOf(ResetBtn);
+        }
+    }
+
+    function execute_dfsIt() {
+        if (stack.length > 0) {
+            let node = stack.pop();
+            
+            if (node === `x = ${Rand_end_x},y = ${Rand_end_y}`) {
+                ended = true;
+                draw_route(node);
+                return;
+            }
+
+            if (!visited.has(node)) {
+                visited.add(node);
+                document.getElementById(node).classList.add('dj_cell');
+                document.getElementById(node).classList.remove('empty_cell');
+
+                for (let i = Graph[node].length -1; i >= 0; --i) {
+                    let neighbor = Graph[node][i];
+
+                    if (!neighbor || document.getElementById(neighbor).classList.contains('wall_cell')) 
+                        continue;
+
+                    if (!visited.has(neighbor)) {
+                        previous[neighbor] = node;
+                        document.getElementById(neighbor).classList.add('route_cell');
+                        document.getElementById(neighbor).classList.remove('dj_cell');
+                        if (neighbor === `x = ${Rand_end_x},y = ${Rand_end_y}`) {
+                            ended = true;
+                            document.getElementById(node).classList.add('next_cell');
+                            document.getElementById(node).classList.remove('route_cell');
+                            draw_route(neighbor);
+                            return;
+                        }
+                        stack.push(neighbor);
+                    }
+                }
+            }
+            setTimeout(execute_dfsIt, Time_step);
+        }
+    }
+
+    let ended = false;
+    let newDistance = 0;
+    let previous = {};
+    let visited = new Set();
+    let stack = [`x = ${Rand_start_x},y = ${Rand_start_y}`];
+    
+    execute_dfsIt();
+}
+
+
 function dijkstra(){
     function getCoords(node){
         const parts = node.split(',');
@@ -274,8 +399,9 @@ function dijkstra(){
     function draw_route(previousnode){
         if(previous[previousnode] != null){
             document.getElementById(previousnode).classList.add('next_cell');
+            document.getElementById(previousNode).classList.remove('route_cell');
             previousnode = previous[previousnode]
-            setTimeout(()=>{draw_route(previousnode)},Time_step)
+            setTimeout(()=>{draw_route(previousnode)},Time_step);
         }else{
             AlgoIsRunning = false;
             StatusOf(BtnStart);
@@ -347,6 +473,10 @@ function run(selected){
         start_algorithm();
     } else if (selected === 'dijkstra'){
         dijkstra();
+    } else if (selected === 'dfsR'){
+        dfsRecurrsive();
+    } else if (selected === 'dfsI'){
+        dfsIterative();
     } else{
         AlgoIsRunning = false;
         alert("Algorithm not available yet :(");

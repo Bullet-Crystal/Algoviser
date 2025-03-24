@@ -132,9 +132,13 @@ for the grid  and empty cells
 }
 
 /* for the route cells */
+.next_cell{
+    background-color: rgb(40, 80, 10);
+    scale: 1;
+}
 .route_cell{
     transition: background-color 0.3s ease-in-out,scale 0.5s ease-in-out;
-    scale: 0.9;
+    scale: 0.8;
     background-color: rgb(100,250,100);
 }
 .dj_cell{
@@ -142,10 +146,6 @@ for the grid  and empty cells
     background-color: rgb(0, 184, 92);
     animation: col 0.4s;
     scale: 0.9;
-}
-.next_cell{
-    background-color: rgb(20, 100, 20);
-    scale: 1;
 }
 /* 
 for the start and end cells
