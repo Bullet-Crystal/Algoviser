@@ -253,16 +253,111 @@ function start_algorithm(){
     let head_grid_y = Rand_start_y;
     let distance_traveled = 0;
     let distance = calculate_distance(head_grid_x, head_grid_y);
-
     handle_routes();
 }
+
+function Cus() {
+    function getCoords(node) {
+        const [xPart, yPart] = node.split(',');
+        return [
+            parseInt(xPart.split('=')[1].trim()), 
+            parseInt(yPart.split('=')[1].trim())
+        ];
+    }
+
+    function calculate_distance(x, y) {
+        return Math.sqrt((x - Rand_end_x) ** 2 + (y - Rand_end_y) ** 2);
+    }
+
+    function execute_Custom() {
+        if (stack.length === 0) {
+            AlgoIsRunning = false;
+            return;
+        }
+
+        let node = stack.pop();
+
+        while (visited.has(node) && stack.length > 0) {
+            node = stack.pop();
+        }
+
+        if (!node || visited.has(node)) {
+            setTimeout(execute_Custom, Time_step);
+            return;
+        }
+
+        if (document.getElementById(node).classList.contains("end_cell")) {
+            document.querySelector('.shortest_dist .value').textContent = `${distance_traveled} blocks`;
+            AlgoIsRunning = false;
+            StatusOf(BtnStart);
+            StatusOf(ResetBtn);
+            return;
+        }
+
+        visited.add(node);
+        let cell = document.getElementById(node);
+        cell.classList.add('dj_cell');
+        cell.classList.remove('empty_cell');
+
+        let [head_grid_x, head_grid_y] = getCoords(node);
+
+        let directions = [
+            { name: "right", dx: 1, dy: 0 },
+            { name: "topright", dx: 1, dy: -1 },
+            { name: "bottom", dx: 0, dy: 1 },
+            { name: "bottomleft", dx: -1, dy: 1 },
+            { name: "left", dx: -1, dy: 0 },
+            { name: "topleft", dx: -1, dy: -1 },
+            { name: "top", dx: 0, dy: -1 },
+            { name: "bottomright", dx: 1, dy: 1 }
+        ];
+
+        let possibilities = directions.map(({ name, dx, dy }) => ({
+            key: name,
+            neighbor: `x = ${head_grid_x + dx},y = ${head_grid_y + dy}`,
+            distance: calculate_distance(head_grid_x + dx, head_grid_y + dy)
+        }));
+
+        let sortedMoves = possibilities
+            .filter(({ neighbor }) => {
+                let neighborCell = document.getElementById(neighbor);
+                return neighborCell && !visited.has(neighbor) && !neighborCell.classList.contains('wall_cell');
+            })
+            .sort((a, b) => a.distance - b.distance)
+            .reverse();
+
+        if (sortedMoves.length > 0) {
+            for (let { neighbor } of sortedMoves) {
+                stack.push(neighbor);
+                document.getElementById(neighbor).classList.add('dj_cell');
+            }
+
+            new Audio('sounds/pop.mp3').play();
+            cell.classList.add('route_cell');
+            cell.classList.remove('dj_cell');
+        }
+
+        distance_traveled++;
+
+        setTimeout(execute_Custom, Time_step);
+    }
+
+    let visited = new Set();
+    let stack = [`x = ${Rand_start_x},y = ${Rand_start_y}`];
+    let distance_traveled = 0;
+
+    execute_Custom();
+}
+
+
+
 
 function dfsRecurrsive(){
     function draw_route(previousnode){
 
         if(previous[previousnode] != null && previous[previous[previousnode]] != previousnode){
             document.getElementById(previousnode).classList.add('next_cell');
-            document.getElementById(previousNode).classList.remove('route_cell');
+            document.getElementById(previousnode).classList.remove('route_cell');
             previousnode = previous[previousnode]
             newDistance++;
             setTimeout(()=>{draw_route(previousnode)},Time_step);
@@ -335,6 +430,9 @@ function dfsIterative() {
     function execute_dfsIt() {
         if (stack.length > 0) {
             let node = stack.pop();
+            while(visited.has(node)){
+                node = stack.pop();
+            }
             
             if (node === `x = ${Rand_end_x},y = ${Rand_end_y}`) {
                 ended = true;
@@ -350,20 +448,13 @@ function dfsIterative() {
                 for (let i = Graph[node].length -1; i >= 0; --i) {
                     let neighbor = Graph[node][i];
 
-                    if (!neighbor || document.getElementById(neighbor).classList.contains('wall_cell')) 
+                    if (!neighbor || visited.has(neighbor) || document.getElementById(neighbor).classList.contains('wall_cell')) 
                         continue;
 
                     if (!visited.has(neighbor)) {
                         previous[neighbor] = node;
                         document.getElementById(neighbor).classList.add('route_cell');
                         document.getElementById(neighbor).classList.remove('dj_cell');
-                        if (neighbor === `x = ${Rand_end_x},y = ${Rand_end_y}`) {
-                            ended = true;
-                            document.getElementById(node).classList.add('next_cell');
-                            document.getElementById(node).classList.remove('route_cell');
-                            draw_route(neighbor);
-                            return;
-                        }
                         stack.push(neighbor);
                     }
                 }
@@ -372,7 +463,7 @@ function dfsIterative() {
         }
     }
 
-    let ended = false;
+
     let newDistance = 0;
     let previous = {};
     let visited = new Set();
@@ -399,7 +490,8 @@ function dijkstra(){
     function draw_route(previousnode){
         if(previous[previousnode] != null){
             document.getElementById(previousnode).classList.add('next_cell');
-            document.getElementById(previousNode).classList.remove('route_cell');
+            document.getElementById(previousnode).classList.remove('route_cell');
+            document.getElementById(previousnode).classList.remove('dj_cell');
             previousnode = previous[previousnode]
             setTimeout(()=>{draw_route(previousnode)},Time_step);
         }else{
@@ -470,7 +562,7 @@ function dijkstra(){
 function run(selected){
     AlgoIsRunning = true;
     if (selected === 'myCustom'){
-        start_algorithm();
+        Cus();
     } else if (selected === 'dijkstra'){
         dijkstra();
     } else if (selected === 'dfsR'){
@@ -561,8 +653,7 @@ function handle_inputs(){
     }
     document.querySelector('#Settings').onclick = function(event){
         if(event.target == this){
-            console.log(event);
-            
+
             const paramsElement = document.querySelector('.params');
             paramsElement.style.display = paramsElement.style.display === 'block' ? 'none' : 'block';
         }
