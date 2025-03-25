@@ -155,107 +155,6 @@ function handle_walls(){
 
 }
 
-
-function start_algorithm(){
-    function calculate_distance(x, y){
-        return Math.sqrt((x-Rand_end_x)**2 + (y-Rand_end_y)**2);
-    }
-    function travel_to_right_move(distances, right_move, collision = 0){
-        if (collision >= 8){
-            alert('No path was found!');
-            distance = 0;
-            return;
-        }
-    
-        const moves = [
-           { direction: 'Right', deltaX: 1, deltaY: 0, distance: distances.right },
-           { direction: 'Bottom', deltaX: 0, deltaY: 1, distance: distances.bottom },
-           { direction: 'Left', deltaX: -1, deltaY: 0, distance: distances.left },
-           { direction: 'Top', deltaX: 0, deltaY: -1, distance: distances.top },
-           { direction: 'Top-Right', deltaX: 1, deltaY: -1, distance: distances.topright },
-           { direction: 'Bottom-Left', deltaX: -1, deltaY: 1, distance: distances.bottomleft },
-           { direction: 'Top-Left', deltaX: -1, deltaY: -1, distance: distances.topleft },
-           { direction: 'Bottom-Right', deltaX: 1, deltaY: 1, distance: distances.bottomright },
-        ];
-    
-        for (let move of moves){
-            if (move.distance === right_move[collision]){
-                let newX = head_grid_x + move.deltaX;
-                let newY = head_grid_y + move.deltaY;
-                let temp = document.getElementById(`x = ${newX},y = ${newY}`);
-    
-                if (temp && (temp.classList.contains('wall_cell') || temp.classList.contains('route_cell'))){
-                    collision++;
-                    continue;
-                }
-    
-                head_grid_x = newX;
-                head_grid_y = newY;
-                return;
-            }
-        }
-    
-
-        travel_to_right_move(distances, right_move, collision);
-    }
-    
-    function handle_routes(){
-        // Movement logic
-        let collision = 0; // initialized for smallest distance
-        let distances ={
-            right: calculate_distance(head_grid_x + 1, head_grid_y),
-            topright : calculate_distance(head_grid_x + 1, head_grid_y - 1),
-            bottom: calculate_distance(head_grid_x, head_grid_y + 1),
-            bottomleft : calculate_distance(head_grid_x - 1, head_grid_y + 1),
-            left: calculate_distance(head_grid_x - 1, head_grid_y),
-            topleft : calculate_distance(head_grid_x - 1, head_grid_y - 1),
-            top: calculate_distance(head_grid_x, head_grid_y - 1),
-            bottomright : calculate_distance(head_grid_x + 1, head_grid_y + 1)
-        };
-        
-        // Convert distances to an array and sort
-        let right_move = Object.values(distances).sort((a, b) => a - b);
-        
-        let prev_x = head_grid_x;
-        let prev_y = head_grid_y;
-        travel_to_right_move(distances,right_move,collision);
-        if(distance !=0){
-            distance = calculate_distance(head_grid_x, head_grid_y);
-        }
-
-        // Animation for previous blocks
-        next_cell = document.getElementById(`x = ${head_grid_x},y = ${head_grid_y}`);
-        prev_cell = document.getElementById(`x = ${prev_x},y = ${prev_y}`);
-        // Update blocks traveled
-        distance_traveled++;
-
-        if (!next_cell.classList.contains('wall_cell')){
-            const audio = new Audio('sounds/pop.mp3');  
-            audio.play();
-            prev_cell.classList.add('route_cell');
-            prev_cell.classList.remove('next_cell');
-            next_cell.classList.add('next_cell');
-            next_cell.classList.remove('empty_cell');
-        }
-        
-        if (distance > 1){
-            setTimeout(handle_routes, Time_step);
-        }
-        else{
-            document.querySelector('.shortest_dist .value').textContent = `${distance_traveled} blocks`;
-            AlgoIsRunning = false;
-            StatusOf(BtnStart);
-            StatusOf(ResetBtn);
-        }
-    }
-
-    let head_grid_x = Rand_start_x;
-    let head_grid_y = Rand_start_y;
-    let distance_traveled = 0;
-    let distance = calculate_distance(head_grid_x, head_grid_y);
-    handle_routes();
-}
-
 function Cus() {
     function getCoords(node) {
         const [xPart, yPart] = node.split(',');
@@ -267,6 +166,21 @@ function Cus() {
 
     function calculate_distance(x, y) {
         return Math.sqrt((x - Rand_end_x) ** 2 + (y - Rand_end_y) ** 2);
+    }
+    function draw_route(previousNode) {
+        if (previous[previousNode] != null || previous[previous[previousNode]] != previousNode) {
+            document.getElementById(previousNode).classList.add('next_cell');
+            document.getElementById(previousNode).classList.remove('route_cell');
+            document.getElementById(previousNode).classList.remove('dj_cell');
+            previousNode = previous[previousNode];
+            distance_traveled++;
+            setTimeout(() => draw_route(previousNode), Time_step);
+        } else {
+            document.querySelector('.shortest_dist .value').textContent = `${distance_traveled} blocks`;
+            AlgoIsRunning = false;
+            StatusOf(BtnStart);
+            StatusOf(ResetBtn);
+        }
     }
 
     function execute_Custom() {
@@ -287,16 +201,13 @@ function Cus() {
         }
 
         if (document.getElementById(node).classList.contains("end_cell")) {
-            document.querySelector('.shortest_dist .value').textContent = `${distance_traveled} blocks`;
-            AlgoIsRunning = false;
-            StatusOf(BtnStart);
-            StatusOf(ResetBtn);
+            draw_route(node);
             return;
         }
 
         visited.add(node);
         let cell = document.getElementById(node);
-        cell.classList.add('dj_cell');
+        cell.classList.add('route_cell');
         cell.classList.remove('empty_cell');
 
         let [head_grid_x, head_grid_y] = getCoords(node);
@@ -329,15 +240,14 @@ function Cus() {
         if (sortedMoves.length > 0) {
             for (let { neighbor } of sortedMoves) {
                 stack.push(neighbor);
-                document.getElementById(neighbor).classList.add('dj_cell');
+                previous[neighbor] = node;
             }
 
             new Audio('sounds/pop.mp3').play();
-            cell.classList.add('route_cell');
-            cell.classList.remove('dj_cell');
+            cell.classList.add('dj_cell');
+            cell.classList.remove('route_cell');
         }
 
-        distance_traveled++;
 
         setTimeout(execute_Custom, Time_step);
     }
@@ -345,6 +255,7 @@ function Cus() {
     let visited = new Set();
     let stack = [`x = ${Rand_start_x},y = ${Rand_start_y}`];
     let distance_traveled = 0;
+    let previous = {};
 
     execute_Custom();
 }
@@ -352,64 +263,88 @@ function Cus() {
 
 
 
-function dfsRecurrsive(){
-    function draw_route(previousnode){
+function generateMaze() {
+    let visited = new Set();
+    let stack = [];
+    
+    [RsX, RsY, ReX, ReY] = start_end_cell(); // Get start and end positions
+    let startNode = `x = ${RsX},y = ${RsY}`;
+    
+    stack.push(startNode);
+    visited.add(startNode);
 
-        if(previous[previousnode] != null && previous[previous[previousnode]] != previousnode){
-            document.getElementById(previousnode).classList.add('next_cell');
-            document.getElementById(previousnode).classList.remove('route_cell');
-            previousnode = previous[previousnode]
-            newDistance++;
-            setTimeout(()=>{draw_route(previousnode)},Time_step);
-        }else{
+    function getNeighbors(x, y) {
+        let directions = [
+            [0, -2], [0, 2], [-2, 0], [2, 0] // Move in 2-cell increments
+        ];
+        directions.sort(() => Math.random() - 0.5); // Shuffle directions
+        let neighbors = [];
+
+        for (let [dx, dy] of directions) {
+            let nx = x + dx, ny = y + dy;
+            let key = `x = ${nx},y = ${ny}`;
+            if (nx > 0 && nx < grid_width - 1 && ny > 0 && ny < grid_height - 1 && !visited.has(key)) {
+                neighbors.push([nx, ny]);
+            }
+        }
+        return neighbors;
+    }
+
+    function removeWall(x, y, nx, ny) {
+        let wallX = (x + nx) / 2;
+        let wallY = (y + ny) / 2;
+        let wallKey = `x = ${wallX},y = ${wallY}`;
+        document.getElementById(wallKey).classList.remove('wall_cell');
+        document.getElementById(wallKey).classList.add('empty_cell');
+    }
+
+    function executeMaze() {
+        if (stack.length > 0) {
+            let node = stack.pop();
+            let [x, y] = node.match(/\d+/g).map(Number);
+            let neighbors = getNeighbors(x, y);
+
+            if (neighbors.length > 0) {
+                stack.push(node); // Push current node back to stack
+                
+                let [nx, ny] = neighbors[Math.floor(Math.random() * neighbors.length)];
+                let nextNode = `x = ${nx},y = ${ny}`;
+                
+                removeWall(x, y, nx, ny); // Remove wall between current and next cell
+                
+                document.getElementById(nextNode).classList.remove('wall_cell');
+                document.getElementById(nextNode).classList.add('empty_cell');
+                
+                visited.add(nextNode);
+                stack.push(nextNode);
+            }
+
+            setTimeout(executeMaze, Time_step);
+        } else {
+            // Maze generation completed
             AlgoIsRunning = false;
-            document.querySelector('.shortest_dist .value').textContent = `${parseFloat(newDistance).toFixed(2)} blocks`;
             StatusOf(BtnStart);
             StatusOf(ResetBtn);
         }
     }
-    function execute_dfs(node){
-        
-        let i = 0;
-        if(!Graph[node] || ended){
-            return;
-        }
-        if(document.getElementById(node).classList.contains('wall_cell'))
-            return;
-        
-        if(node == `x = ${Rand_end_x},y = ${Rand_end_y}`){
-            ended = true;
-            draw_route(node);
-            return;
-        }
-        for (let neighbor of Graph[node]){
 
-            if(i >= routes)
-                break;
-            i += 1;
+    // Fill grid with walls
+    for (let y = 1; y < grid_height - 1; y++) {
+        for (let x = 1; x < grid_width - 1; x++) {
 
-            if (!visited.has(neighbor)){
-                visited.add(neighbor);
-                previous[neighbor] = node;
-                
-                setTimeout(()=>{execute_dfs(neighbor)},Time_step);
-                document.getElementById(node).classList.add('dj_cell');
-                document.getElementById(node).classList.remove('empty_cell');
-                
-            }else{
-                if(document.getElementById(neighbor).classList.contains('wall_cell'))
-                    return;
-                document.getElementById(neighbor).classList.add('route_cell');
-                document.getElementById(neighbor).classList.remove('dj_cell');
-            }
+            let cell = document.getElementById(`x = ${x},y = ${y}`);
+            if(cell.classList.contains('end_cell') || cell.classList.contains('end_cell'))
+                continue;
+            cell.classList.add('wall_cell');
+            cell.classList.remove('empty_cell');
+
         }
     }
-    let ended = false;
-    let newDistance = 0;
-    let previous ={};
-    let visited = new Set();
-    execute_dfs(`x = ${Rand_start_x},y = ${Rand_start_y}`);
+
+    executeMaze();
 }
+
+
 function dfsIterative() {
     function draw_route(previousNode) {
         if (previous[previousNode] != null || previous[previous[previousNode]] != previousNode) {
@@ -565,8 +500,8 @@ function run(selected){
         Cus();
     } else if (selected === 'dijkstra'){
         dijkstra();
-    } else if (selected === 'dfsR'){
-        dfsRecurrsive();
+    } else if (selected === 'Maze'){
+        generateMaze();
     } else if (selected === 'dfsI'){
         dfsIterative();
     } else{
