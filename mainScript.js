@@ -488,6 +488,93 @@ function dfsIterative() {
     execute_dfsIt();
 }
 
+function a_star() {
+    function getCoords(node) {
+        const parts = node.split(',');
+        const x = parseInt(parts[0].split('=')[1].trim());
+        const y = parseInt(parts[1].split('=')[1].trim());
+        return [x, y];
+    }
+
+    function getDistance(node, neighbor) {
+        const [x_node, y_node] = getCoords(node);
+        const [x_neighbor, y_neighbor] = getCoords(neighbor);
+        return Math.sqrt((y_neighbor - y_node) ** 2 + (x_neighbor - x_node) ** 2);
+    }
+
+    function heuristic(node) {
+        const [x_node, y_node] = getCoords(node);
+        return Math.abs(x_node - Rand_end_x) + Math.abs(y_node - Rand_end_y);
+    }
+
+    function draw_route(previousNode) {
+        if (previous[previousNode] != null) {
+            document.getElementById(previousNode).classList.add('next_cell');
+            document.getElementById(previousNode).classList.remove('route_cell', 'dj_cell');
+            previousNode = previous[previousNode];
+            setTimeout(() => { draw_route(previousNode); }, Time_step);
+        } else {
+            AlgoIsRunning = false;
+            StatusOf(BtnStart);
+            StatusOf(ResetBtn);
+        }
+    }
+
+    function execute_astar() {
+        nodes.sort((a, b) => fScore[a] - fScore[b]);
+        let current = nodes.shift();
+        visited.add(current);
+
+        if (!Graph[current] || gScore[current] === Infinity) {
+            AlgoIsRunning = false;
+            alert("No path was found :(");
+            return;
+        }
+
+        for (let neighbor of Graph[current]) {
+            if (document.getElementById(neighbor).classList.contains('wall_cell')) continue;
+            if (visited.has(neighbor)) continue;
+
+            let tentative_gScore = gScore[current] + getDistance(current, neighbor);
+
+            if (tentative_gScore < gScore[neighbor]) {
+                previous[neighbor] = current;
+                gScore[neighbor] = tentative_gScore;
+                fScore[neighbor] = gScore[neighbor] + heuristic(neighbor);
+
+                if (!nodes.includes(neighbor)) nodes.push(neighbor);
+            }
+
+            if (neighbor == `x = ${Rand_end_x},y = ${Rand_end_y}`) {
+                document.querySelector('.shortest_dist .value').textContent = `${parseFloat(gScore[neighbor]).toFixed(2)} blocks`;
+                draw_route(previous[neighbor]);
+                return;
+            }
+
+            document.getElementById(neighbor).classList.add('dj_cell');
+            document.getElementById(neighbor).classList.remove('empty_cell');
+        }
+
+        setTimeout(execute_astar, Time_step);
+    }
+
+    let gScore = {};
+    let fScore = {};
+    let visited = new Set();
+    let nodes = Object.keys(Graph);
+    let previous = {};
+
+    for (let node of nodes) {
+        gScore[node] = Infinity;
+        fScore[node] = Infinity;
+        previous[node] = null;
+    }
+    gScore[`x = ${Rand_start_x},y = ${Rand_start_y}`] = 0;
+    fScore[`x = ${Rand_start_x},y = ${Rand_start_y}`] = heuristic(`x = ${Rand_start_x},y = ${Rand_start_y}`);
+
+    execute_astar();
+}
+
 
 function dijkstra(){
     function getCoords(node){
@@ -587,6 +674,8 @@ function run(selected){
         dfsIterative();
     } else if (selected === 'bfs'){
         bfs();
+    } else if (selected === 'a*'){
+        a_star();
     } else{
         AlgoIsRunning = false;
         alert("Algorithm not available yet :(");
