@@ -260,10 +260,9 @@ function custom() {
 
 function bfs() {
     function draw_route(previousNode) {
-        if (previous[previousNode] != null || previous[previous[previousNode]] != previousNode) {
+        if (previousNode in previous) {
             document.getElementById(previousNode).classList.add('next_cell');
-            document.getElementById(previousNode).classList.remove('route_cell');
-            document.getElementById(previousNode).classList.remove('dj_cell');
+            document.getElementById(previousNode).classList.remove('route_cell', 'dj_cell');
             previousNode = previous[previousNode];
             newDistance++;
             setTimeout(() => draw_route(previousNode), Time_step);
@@ -271,7 +270,8 @@ function bfs() {
             quit();
         }
     }
-    function quit(){
+
+    function quit() {
         AlgoIsRunning = false;
         document.querySelector('.shortest_dist .value').textContent = `${parseFloat(newDistance).toFixed(2)} blocks`;
         StatusOf(BtnStart);
@@ -279,60 +279,65 @@ function bfs() {
     }
 
     function execute_bfs() {
-        if (queue.length > 0) {
-            let node = queue.shift();
-    
-            while (visited.has(node)) {
-                node = queue.shift();
-            }
-    
-            if (node === `x = ${Rand_end_x},y = ${Rand_end_y}`) {
-                draw_route(node);
-                return;
-            }
+        if (queue.length === 0) {
+            quit();
+            return;
+        }
 
-            if(!node){
-                quit();
-                return;
-            }
-    
-            if (!visited.has(node)) {
-                visited.add(node);
-                document.getElementById(node).classList.add('dj_cell');
-                document.getElementById(node).classList.remove('empty_cell');
-    
-                for (let i = 0; i < Graph[node].length; ++i) {
-                    let neighbor = Graph[node][i];
-    
-                    if (neighbor === `x = ${Rand_end_x},y = ${Rand_end_y}`) {
-                        draw_route(node);
-                        return;
-                    }
-    
-                    if (!neighbor || visited.has(neighbor) || document.getElementById(neighbor).classList.contains('wall_cell')) 
-                        continue;
-    
-                    if (!visited.has(neighbor)) {
-                        previous[neighbor] = node;
-                        document.getElementById(neighbor).classList.add('route_cell');
-                        document.getElementById(neighbor).classList.remove('dj_cell');
-                        queue.push(neighbor);
-                    }
+        let node = queue.shift();
+        while (node && visited.has(node)) {
+            node = queue.shift();
+        }
+
+        if (!node) {
+            quit();
+            return;
+        }
+
+        if (node === `x = ${Rand_end_x},y = ${Rand_end_y}`) {
+            draw_route(node);
+            return;
+        }
+        if (!visited.has(node)) {
+            visited.add(node);
+            document.getElementById(node).classList.add('dj_cell');
+            document.getElementById(node).classList.remove('empty_cell');
+            var k = 0;
+
+            for (let neighbor of Graph[node]) {
+                if (k >= routes){
+                    break;
+                }
+                k +=1;
+                if (!neighbor || visited.has(neighbor) || document.getElementById(neighbor).classList.contains('wall_cell')) 
+                    continue;
+
+                if (neighbor === `x = ${Rand_end_x},y = ${Rand_end_y}`) {
+                    previous[neighbor] = node;
+                    draw_route(neighbor);
+                    return;
+                }
+
+                if (!visited.has(neighbor)) {
+                    previous[neighbor] = node;
+                    document.getElementById(neighbor).classList.add('route_cell');
+                    document.getElementById(neighbor).classList.remove('dj_cell');
+                    queue.push(neighbor);
                 }
             }
-            setTimeout(execute_bfs, Time_step);
         }
-    }
-    
 
+        setTimeout(execute_bfs, Time_step);
+    }
 
     let newDistance = 0;
     let previous = {};
     let visited = new Set();
     let queue = [`x = ${Rand_start_x},y = ${Rand_start_y}`];
-    
+
     execute_bfs();
 }
+
 
 function generateMaze() {
     let visited = new Set();
