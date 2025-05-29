@@ -8,16 +8,18 @@ const ResetBtn = document.getElementById('Reset');
 const WinWidth = window.innerWidth;
 const WinHeight = window.innerHeight;
 const BoxSize = WinWidth > 700 ? 30 : 20;
+const AnimationSpeed = 80;
 let Time_step = 100 - speedelement.value;//time for each frame in (ms)
+
 let routes = routeselemnt.value;
 const Graph ={};
 let selected = '';
 let AlgoIsRunning = false;
 let Reseted = false;
-
+let ContactBoxShown = false;
 
 const grid_width = Math.floor((WinWidth / BoxSize) -2);
-const grid_height = Math.floor((WinHeight / BoxSize)/1.2);
+const grid_height = Math.floor((WinHeight / BoxSize)*0.85);
 
 const grid_div = document.querySelector('.grid');
 let [Rand_start_x,Rand_start_y,Rand_end_x,Rand_end_y] = start_end_cell(); 
@@ -33,6 +35,12 @@ function updateSpeed(){
 function updateRoute(){
     document.getElementById('routeValue').textContent = routeselemnt.value;
     routes = routeselemnt.value;
+}
+
+function reset_button(){
+    AlgoIsRunning = false;
+    StatusOf(BtnStart);
+    StatusOf(ResetBtn);
 }
 
 function start_end_cell(){
@@ -80,24 +88,24 @@ function create_grid(){
                 child.style.backgroundImage = "url('./icons/end.png')";
                 child.style.backgroundRepeat = 'no-repeat';
                 child.style.backgroundSize = '100% 100%';
-            }else if(x == Rand_start_x && y == Rand_start_y){
-                child.classList.add('start_cell');
-                child.classList.remove('route_cell');
-                child.style.backgroundImage = "url('./icons/start.png')";
-                child.style.backgroundRepeat = 'no-repeat';
-                child.style.backgroundSize = '100% 100%';
-            }
-            else{
-                if(!Reseted){
-                    child.classList.add('empty_cell');
-                }else{
-                    if(!document.getElementById(`x = ${x},y = ${y}`).classList.contains('wall_cell'))
-                        child.classList.add('empty_cell');
-                    else
-                        child.classList.add('wall_cell');
-                    
+                }else if(x == Rand_start_x && y == Rand_start_y){
+                    child.classList.add('start_cell');
+                    child.classList.remove('route_cell');
+                    child.style.backgroundImage = "url('./icons/start.png')";
+                    child.style.backgroundRepeat = 'no-repeat';
+                    child.style.backgroundSize = '100% 100%';
                 }
-            }
+                else{
+                    if(!Reseted){
+                        child.classList.add('empty_cell');
+                    }else{
+                        if(!document.getElementById(`x = ${x},y = ${y}`).classList.contains('wall_cell'))
+                            child.classList.add('empty_cell');
+                        else
+                            child.classList.add('wall_cell');
+                        
+                    }
+                }
         }
             child.id = `x = ${x},y = ${y}`;
             child.style.width = `${BoxSize}px`;
@@ -168,22 +176,20 @@ function custom() {
     function draw_route(previousNode) {
         if (previous[previousNode] != null || previous[previous[previousNode]] != previousNode) {
             document.getElementById(previousNode).classList.add('next_cell');
-            document.getElementById(previousNode).classList.remove('route_cell');
-            document.getElementById(previousNode).classList.remove('dj_cell');
+            document.getElementById(previousNode).classList.remove('route_cell','dj_cell');
             previousNode = previous[previousNode];
             distance_traveled++;
-            setTimeout(() => draw_route(previousNode), Time_step);
+            setTimeout(() => draw_route(previousNode), AnimationSpeed);
         } else {
             document.querySelector('.shortest_dist .value').textContent = `${distance_traveled} blocks`;
-            AlgoIsRunning = false;
-            StatusOf(BtnStart);
-            StatusOf(ResetBtn);
+            reset_button();
         }
     }
 
     function execute_Custom() {
         if (stack.length === 0) {
-            AlgoIsRunning = false;
+            reset_button();
+            alert('not path was found :(');
             return;
         }
 
@@ -265,22 +271,21 @@ function bfs() {
             document.getElementById(previousNode).classList.remove('route_cell', 'dj_cell');
             previousNode = previous[previousNode];
             newDistance++;
-            setTimeout(() => draw_route(previousNode), Time_step);
+            setTimeout(() => draw_route(previousNode), AnimationSpeed);
         } else {
             quit();
         }
     }
 
     function quit() {
-        AlgoIsRunning = false;
+        reset_button();
         document.querySelector('.shortest_dist .value').textContent = `${parseFloat(newDistance).toFixed(2)} blocks`;
-        StatusOf(BtnStart);
-        StatusOf(ResetBtn);
     }
 
     function execute_bfs() {
         if (queue.length === 0) {
             quit();
+            alert('not path was found :(')
             return;
         }
 
@@ -338,14 +343,12 @@ function bfs() {
     execute_bfs();
 }
 
-
 function generateMaze() {
     let visited = new Set();
     let stack = [];
     
-    [RsX, RsY, ReX, ReY] = start_end_cell(); // Get start and end positions
+    [RsX, RsY, ReX, ReY] = start_end_cell();
     let startNode = `x = ${RsX},y = ${RsY}`;
-    
     stack.push(startNode);
     visited.add(startNode);
 
@@ -397,10 +400,7 @@ function generateMaze() {
 
             setTimeout(executeMaze, Time_step);
         } else {
-            // Maze generation completed
-            AlgoIsRunning = false;
-            StatusOf(BtnStart);
-            StatusOf(ResetBtn);
+            reset_button();
         }
     }
 
@@ -420,22 +420,18 @@ function generateMaze() {
     executeMaze();
 }
 
-
 function dfsIterative() {
     function quit(){
-        AlgoIsRunning = false;
         document.querySelector('.shortest_dist .value').textContent = `${parseFloat(newDistance).toFixed(2)} blocks`;
-        StatusOf(BtnStart);
-        StatusOf(ResetBtn);
+        reset_button();
     }
     function draw_route(previousNode) {
         if (previous[previousNode] != null || previous[previous[previousNode]] != previousNode) {
             document.getElementById(previousNode).classList.add('next_cell');
-            document.getElementById(previousNode).classList.remove('route_cell');
-            document.getElementById(previousNode).classList.remove('dj_cell');
+            document.getElementById(previousNode).classList.remove('route_cell','dj_cell');
             previousNode = previous[previousNode];
             newDistance++;
-            setTimeout(() => draw_route(previousNode), Time_step);
+            setTimeout(() => draw_route(previousNode), AnimationSpeed);
         } else {
             quit();
         }
@@ -449,6 +445,7 @@ function dfsIterative() {
             }
             if(!node){
                 quit();
+                alert('not path was found :(')
                 return;
             }
             
@@ -517,11 +514,9 @@ function a_star() {
             document.getElementById(previousNode).classList.add('next_cell');
             document.getElementById(previousNode).classList.remove('route_cell', 'dj_cell');
             previousNode = previous[previousNode];
-            setTimeout(() => { draw_route(previousNode); }, Time_step);
+            setTimeout(() => { draw_route(previousNode); }, AnimationSpeed);
         } else {
-            AlgoIsRunning = false;
-            StatusOf(BtnStart);
-            StatusOf(ResetBtn);
+            reset_button();
         }
     }
 
@@ -531,14 +526,22 @@ function a_star() {
         visited.add(current);
 
         if (!Graph[current] || gScore[current] === Infinity) {
-            AlgoIsRunning = false;
+            reset_button();
             alert("No path was found :(");
             return;
         }
 
         for (let neighbor of Graph[current]) {
             if (document.getElementById(neighbor).classList.contains('wall_cell')) continue;
-            if (visited.has(neighbor)) continue;
+            if (visited.has(neighbor)){
+                document.getElementById(neighbor).classList.add('route_cell');
+                document.getElementById(neighbor).classList.remove('dj_cell');
+                continue;
+            }else{
+                document.getElementById(neighbor).classList.add('dj_cell');
+                document.getElementById(neighbor).classList.remove('empty_cell');
+
+            }
 
             let tentative_gScore = gScore[current] + getDistance(current, neighbor);
 
@@ -580,7 +583,6 @@ function a_star() {
     execute_astar();
 }
 
-
 function dijkstra(){
     function getCoords(node){
         const parts = node.split(',');
@@ -598,14 +600,11 @@ function dijkstra(){
     function draw_route(previousnode){
         if(previous[previousnode] != null){
             document.getElementById(previousnode).classList.add('next_cell');
-            document.getElementById(previousnode).classList.remove('route_cell');
-            document.getElementById(previousnode).classList.remove('dj_cell');
+            document.getElementById(previousnode).classList.remove('route_cell','dj_cell');
             previousnode = previous[previousnode]
-            setTimeout(()=>{draw_route(previousnode)},Time_step);
+            setTimeout(()=>{draw_route(previousnode)},AnimationSpeed);
         }else{
-            AlgoIsRunning = false;
-            StatusOf(BtnStart);
-            StatusOf(ResetBtn);
+            reset_button();
         }
     }
 
@@ -615,7 +614,7 @@ function dijkstra(){
         visited.add(closestNode);
 
         if(!Graph[closestNode] || distances[closestNode] === Infinity){
-            AlgoIsRunning = false;
+            reset_button();
             alert("no path was found :(")
             return;
         }
@@ -664,7 +663,6 @@ function dijkstra(){
     execute_dj();
 
 }
-
 
 // Function to run selected algorithm
 function run(selected){
@@ -722,11 +720,16 @@ function StatusOf(btn){
 
 function handle_inputs(){
 
-
     const options = document.querySelectorAll('.option');
     const opts = document.querySelector('.options');
     const algos = document.getElementById('Algos');
-    
+    const contact = document.getElementById('Contact');
+
+    contact.onclick = function (){
+        ContactBoxShown = ContactBoxShown ? false : true;
+        document.getElementById('contactBox').style.display = ContactBoxShown? 'block' : 'none';
+    }
+
     algos.onclick = function (event){
         event.stopPropagation(); // it works d'ont TOUCH it
         opts.style.display = opts.style.display === 'block' ? 'none' : 'block';
@@ -758,7 +761,6 @@ function handle_inputs(){
         if(!AlgoIsRunning){
             Reseted = true;
             create_grid();
-            // main_loop();
         }
     }
     document.getElementById('Wipe All').onclick = function(){

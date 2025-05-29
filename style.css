@@ -97,8 +97,6 @@ for the grid  and empty cells
 }
 .empty_cell{
     background-color: rgb(255, 255, 255);
-    animation: col2 0.3s;
-    transition: background-color 0.3s ease-in-out,scale 0.5s ease-in-out;
     scale: 0.9;
 }
 
@@ -114,35 +112,45 @@ for the grid  and empty cells
     background-color: brown;
     animation: anim 0.3s ;
 }
+
+/* contact box container */
+
+.contactBoxContainer{
+    position: fixed;
+    z-index: 2;
+    display: none;
+    background-color: gray;
+}
+
+.contact{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* for the route cells */
 @keyframes anim {
     0%{
         scale: 1;
+        z-index: 50;
     }
     50%{
         scale: 1.4;
     }
     100%{
         scale: 1;
+        z-index: 0;
     }
 }
-@keyframes col2 {
-    0%{
-        background-color: rgb(0, 109, 54);;
-    }
-    100%{
-        background-color: rgb(255, 255, 255);
-    }
-}
+
 @keyframes col {
     0%{
         background-color: rgb(0, 109, 54);;
     }
     100%{
-        background-color: rgb(0, 184, 92);
+        background-color: rgb(100, 175, 92);
     }
 }
-
-/* for the route cells */
 .route_cell{
     transition: background-color 0.3s ease-in-out,scale 0.5s ease-in-out;
     scale: 0.8;
@@ -155,9 +163,11 @@ for the grid  and empty cells
     scale: 0.9;
 }
 .next_cell{
-    background-color: rgb(50, 30, 100);
-    scale: 0.8;
-    border-radius: 5px;
+    transition: background-color 0.3s ease-in-out,scale 0.8s ease-in-out;
+    animation: anim 0.4s, col 0.5s;
+    border-radius: 3px;
+    scale: 0.9;
+    background-color: rgb(250, 120, 110);
 }
 /* 
 for the start and end cells
