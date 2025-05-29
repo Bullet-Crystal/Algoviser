@@ -114,19 +114,98 @@ for the grid  and empty cells
 }
 
 /* contact box container */
-
-.contactBoxContainer{
+.contactBoxContainer {
     position: fixed;
-    z-index: 2;
+    z-index: 10;
     display: none;
-    background-color: gray;
+    background: linear-gradient(to bottom right, #e0fbe0, #ffe0e0);
+    height: 75%;
+    width: 33%;
+    left: 33%;
+    top: 15%;
+    border: 4px solid #145214;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+    font-family: 'Segoe UI', sans-serif;
+    overflow-y: auto;
+    color: #1b1b1b;
+    animation: fadeIn 0.6s ease-in-out;
 }
 
-.contact{
-    display: flex;
-    align-items: center;
-    justify-content: center;
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
+
+.contact h2 {
+    color: #145214;
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.8em;
+    border-bottom: 2px dashed #f23d3d;
+    padding-bottom: 10px;
+}
+
+.contactInfo p {
+    margin: 10px 0;
+    font-size: 1rem;
+}
+
+.contactInfo a {
+    color: #f23d3d;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.contactInfo a:hover {
+    color: #c00000;
+    text-decoration: underline;
+}
+
+.summary h3 {
+    color: #145214;
+    margin-top: 20px;
+    font-size: 1.4em;
+}
+
+.summary p {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.5;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, #f23d3d, #145214);
+    margin: 20px 0;
+}
+
+.grid {
+    margin-top: 1rem;
+}
+
+.container {
+    position: relative;
+}
+
+
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: rgb(20, 75, 20);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: rgb(30, 100, 30);
+}
+
 
 /* for the route cells */
 @keyframes anim {
