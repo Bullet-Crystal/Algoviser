@@ -15,7 +15,6 @@ let routes = routeselemnt.value;
 const Graph ={};
 let selected = '';
 let AlgoIsRunning = false;
-let Reseted = false;
 let ContactBoxShown = false;
 
 const grid_width = Math.floor((WinWidth / BoxSize) -2);
@@ -54,6 +53,18 @@ function start_end_cell(){
 
 }
 
+function reset_grid(){
+    for (let y = 1; y < grid_height-1; y++){
+        for (let x = 1; x < grid_width-1; x++){
+            let cell = document.getElementById(`x = ${x},y = ${y}`);
+            if(cell.classList.contains('dj_cell') || cell.classList.contains('next_cell') || cell.classList.contains('route_cell')){
+                cell.classList.add('empty_cell');
+                cell.classList.remove('route_cell','dj_cell','next_cell');
+            }
+        }
+        }
+}
+
 function create_grid(){
     const fragment = document.createDocumentFragment();
 
@@ -62,7 +73,7 @@ function create_grid(){
         for (let x = 0; x < grid_width; x++){
             let child = document.createElement('div');
             if(x == 0 || x >= grid_width - 1 || y == 0 || y >= grid_height - 1){
-                child.classList.add('wall_cell');
+                child.classList.add('wall_cell','wall_cell_animation');
             }else{
                 if(routes === 4){
                     Graph[`x = ${x},y = ${y}`] = [
@@ -96,15 +107,7 @@ function create_grid(){
                     child.style.backgroundSize = '100% 100%';
                 }
                 else{
-                    if(!Reseted){
-                        child.classList.add('empty_cell');
-                    }else{
-                        if(!document.getElementById(`x = ${x},y = ${y}`).classList.contains('wall_cell'))
-                            child.classList.add('empty_cell');
-                        else
-                            child.classList.add('wall_cell');
-                        
-                    }
+                    child.classList.add('empty_cell');
                 }
         }
             child.id = `x = ${x},y = ${y}`;
@@ -134,11 +137,11 @@ function handle_walls(){
         document.addEventListener('mousedown',(event)=>{
             mouse_active = true;
             if (event.target.classList.contains('empty_cell')){
-                event.target.classList.add('wall_cell');
+                event.target.classList.add('wall_cell','wall_cell_animation');
                 event.target.classList.remove('empty_cell');
                 mouse_active_remove = false;
             }else if(event.target.classList.contains('wall_cell')){
-                event.target.classList.remove('wall_cell');
+                event.target.classList.remove('wall_cell','wall_cell_animation');
                 event.target.classList.add('empty_cell');
                 mouse_active_remove = true;
             }
@@ -150,11 +153,11 @@ function handle_walls(){
     }
     document.addEventListener('mouseover',(event)=>{
         if(mouse_active && event.target.classList.contains('empty_cell') && !mouse_active_remove){
-            event.target.classList.add('wall_cell');
+            event.target.classList.add('wall_cell','wall_cell_animation');
             event.target.classList.remove('empty_cell');
         }else if(mouse_active_remove && event.target.classList.contains('wall_cell')){
             event.target.classList.add('empty_cell');
-            event.target.classList.remove('wall_cell');
+            event.target.classList.remove('wall_cell','wall_cell_animation');
         }
     })
 
@@ -373,7 +376,7 @@ function generateMaze() {
         let wallX = (x + nx) / 2;
         let wallY = (y + ny) / 2;
         let wallKey = `x = ${wallX},y = ${wallY}`;
-        document.getElementById(wallKey).classList.remove('wall_cell');
+        document.getElementById(wallKey).classList.remove('wall_cell','wall_cell_animation');
         document.getElementById(wallKey).classList.add('empty_cell');
     }
 
@@ -391,7 +394,7 @@ function generateMaze() {
                 
                 removeWall(x, y, nx, ny); // Remove wall between current and next cell
                 
-                document.getElementById(nextNode).classList.remove('wall_cell');
+                document.getElementById(nextNode).classList.remove('wall_cell','wall_cell_animation');
                 document.getElementById(nextNode).classList.add('empty_cell');
                 
                 visited.add(nextNode);
@@ -409,8 +412,9 @@ function generateMaze() {
         for (let x = 1; x < grid_width - 1; x++) {
 
             let cell = document.getElementById(`x = ${x},y = ${y}`);
-            if(cell.classList.contains('end_cell') || cell.classList.contains('end_cell'))
+            if(cell.classList.contains('end_cell') || cell.classList.contains('start_cell'))
                 continue;
+
             cell.classList.add('wall_cell');
             cell.classList.remove('empty_cell');
 
@@ -599,8 +603,8 @@ function dijkstra(){
 
     function draw_route(previousnode){
         if(previous[previousnode] != null){
-            document.getElementById(previousnode).classList.add('next_cell');
             document.getElementById(previousnode).classList.remove('route_cell','dj_cell');
+            document.getElementById(previousnode).classList.add('next_cell');
             previousnode = previous[previousnode]
             setTimeout(()=>{draw_route(previousnode)},AnimationSpeed);
         }else{
@@ -759,8 +763,7 @@ function handle_inputs(){
       };
     ResetBtn.onclick = function(){
         if(!AlgoIsRunning){
-            Reseted = true;
-            create_grid();
+            reset_grid();
         }
     }
     document.getElementById('Wipe All').onclick = function(){

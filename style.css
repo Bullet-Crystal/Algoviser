@@ -110,6 +110,9 @@ for the grid  and empty cells
     transition: background-color 0.2s;
     z-index: 1;
     background-color: brown;
+}
+
+.wall_cell_animation{
     animation: anim 0.3s ;
 }
 
@@ -246,8 +249,9 @@ button:hover {
     animation: anim 0.4s, col 0.5s;
     border-radius: 3px;
     scale: 0.9;
-    background-color: rgb(250, 120, 110);
+    background-color: rgb(100, 100, 100);
 }
+
 /* 
 for the start and end cells
 */
