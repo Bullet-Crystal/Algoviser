@@ -7,7 +7,7 @@ const ResetBtn = document.getElementById('Reset');
 
 const WinWidth = window.innerWidth;
 const WinHeight = window.innerHeight;
-const BoxSize = WinWidth > 700 ? 30 : 20;
+const BoxSize = WinWidth > 700 ? 27 : 30;
 const AnimationSpeed = 80;
 let Time_step = 100 - speedelement.value;//time for each frame in (ms)
 
